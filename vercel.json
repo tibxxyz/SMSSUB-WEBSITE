@@ -1,18 +1,21 @@
 {
   "version": 2,
   "builds": [
-    { "src": "api/**/*.js", "use": "@vercel/node" },
-    { "src": "**/*.html", "use": "@vercel/static" },
-    { "src": "css/**", "use": "@vercel/static" },
-    { "src": "js/**", "use": "@vercel/static" },
-    { "src": "lib/**", "use": "@vercel/static" }
+    { "src": "api/**/*.js", "use": "@vercel/node" }
   ],
-  "rewrites": [
-    { "source": "/api/:path*", "destination": "/api/:path*" },
-    { "source": "/", "destination": "/index.html" },
-    { "source": "/:path*", "destination": "/index.html" }
+  "routes": [
+    { "src": "/api/(.*)", "dest": "/api/$1" },
+    { "src": "/(.*\\.(html|css|js|png|jpg|jpeg|gif|ico|json|svg|webp))", "dest": "/$1" },
+    { "src": "/admin-login", "dest": "/admin-login.html" },
+    { "src": "/admin-panel", "dest": "/admin-panel.html" },
+    { "src": "/dashboard", "dest": "/dashboard.html" },
+    { "src": "/login", "dest": "/login.html" },
+    { "src": "/(.*)", "dest": "/index.html" }
   ],
-  "cleanUrls": true,
-  "trailingSlash": false
+  "functions": {
+    "api/**/*.js": {
+      "includeFiles": "lib/**"
+    }
+  }
 }
 
