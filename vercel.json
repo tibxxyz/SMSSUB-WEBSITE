@@ -1,5 +1,10 @@
 {
   "version": 2,
+  "functions": {
+    "api/**/*.js": {
+      "includeFiles": "lib/**"
+    }
+  },
   "routes": [
     { "src": "/api/(.*)", "dest": "/api/$1" },
     { "src": "/(.*\\.(html|css|js|png|jpg|jpeg|gif|ico|json|svg|webp))", "dest": "/$1" },

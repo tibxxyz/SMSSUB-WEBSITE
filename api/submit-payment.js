@@ -1,5 +1,5 @@
-import { db } from './lib/firebase';
-import { sendTelegramNotification } from './lib/telegram';
+import { db } from '../../lib/firebase';
+import { sendTelegramNotification } from '../../lib/telegram';
 
 export default async function handler(req, res) {
     // Set CORS headers

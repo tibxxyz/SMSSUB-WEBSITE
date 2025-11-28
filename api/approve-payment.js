@@ -1,4 +1,4 @@
-import { db } from './lib/firebase';
+import { db } from '../../lib/firebase';
 import admin from 'firebase-admin';
 import { checkAdminStatus } from './check-admin.js';
 
