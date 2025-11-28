@@ -4,7 +4,8 @@
     "description": "SMS Subscription and Payment Portal",
     "type": "module",
     "scripts": {
-        "start": "node api/index.js"
+        "start": "node api/index.js",
+        "vercel-build": "mkdir -p api/lib && cp -r lib/* api/lib/"
     },
     "dependencies": {
         "firebase-admin": "^13.6.0",
