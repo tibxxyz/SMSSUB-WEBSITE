@@ -1,5 +1,17 @@
 import admin from 'firebase-admin';
 
+// Suppress DEP0169 deprecation warning from transitive dependencies
+// This warning comes from url.parse() usage in google-auth-library or its deps
+// It's safe to suppress as it doesn't affect functionality
+const originalEmitWarning = process.emitWarning;
+process.emitWarning = function(warning, type, code, ...args) {
+    // Suppress only DEP0169 warnings (url.parse deprecation)
+    if (code === 'DEP0169' || (typeof warning === 'string' && warning.includes('DEP0169'))) {
+        return; // Suppress this specific warning
+    }
+    return originalEmitWarning.call(process, warning, type, code, ...args);
+};
+
 if (!admin.apps.length) {
     try {
         admin.initializeApp({
