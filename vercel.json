@@ -37,10 +37,6 @@
       "destination": "/api/payments?action=get-user-payments"
     },
     {
-      "source": "/api/send-sms",
-      "destination": "/api/sms?action=send-sms"
-    },
-    {
       "source": "/api/check-sms-credits",
       "destination": "/api/sms?action=check-sms-credits"
     },
