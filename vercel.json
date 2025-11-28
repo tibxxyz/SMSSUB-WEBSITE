@@ -7,11 +7,11 @@
     { "src": "js/**", "use": "@vercel/static" },
     { "src": "lib/**", "use": "@vercel/static" }
   ],
-  "routes": [
-    { "src": "/api/(.*)", "dest": "/api/$1" },
-    { "src": "/(.*\\.(html|css|js|png|jpg|jpeg|gif|ico|json|svg|webp))", "dest": "/$1" },
-    { "src": "/", "dest": "/index.html" },
-    { "src": "/(.*)", "dest": "/index.html" }
+  "rewrites": [
+    { "source": "/api/:path*", "destination": "/api/:path*" },
+    { "source": "/(.*\\.(html|css|js|png|jpg|jpeg|gif|ico|json|svg|webp))", "destination": "/$1" },
+    { "source": "/", "destination": "/index.html" },
+    { "source": "/(.*)", "destination": "/index.html" }
   ],
   "cleanUrls": true,
   "trailingSlash": false
