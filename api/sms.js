@@ -1,4 +1,4 @@
-import { db } from './lib/firebase';
+import { db } from './lib/firebase.js';
 import admin from 'firebase-admin';
 import path from 'path';
 

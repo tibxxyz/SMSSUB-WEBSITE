@@ -1,5 +1,5 @@
-import { db } from './lib/firebase';
-import { sendTelegramNotification } from './lib/telegram';
+import { db } from './lib/firebase.js';
+import { sendTelegramNotification } from './lib/telegram.js';
 import admin from 'firebase-admin';
 
 export default async function handler(req, res) {

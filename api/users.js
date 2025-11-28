@@ -1,8 +1,8 @@
-import { db } from './lib/firebase';
+import { db } from './lib/firebase.js';
 // We need to dynamically import verifyPassword because it might not be needed for all actions
 // and to avoid issues if the file is missing (though it should be there).
 // Actually, standard import is fine since it's bundled.
-import { verifyPassword } from './lib/password';
+import { verifyPassword } from './lib/password.js';
 
 export default async function handler(req, res) {
     // Set CORS headers
