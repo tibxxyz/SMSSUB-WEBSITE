@@ -1,4 +1,4 @@
-import { db } from '../lib/firebase';
+import { db } from './lib/firebase';
 
 // Validate email from main app's stored user data
 export default async function handler(req, res) {

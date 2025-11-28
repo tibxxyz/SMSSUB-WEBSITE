@@ -1,5 +1,5 @@
-import { db } from '../lib/firebase';
-import { verifyPassword } from '../lib/password';
+import { db } from './lib/firebase';
+import { verifyPassword } from './lib/password';
 
 export default async function handler(req, res) {
     // Set CORS headers
