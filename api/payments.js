@@ -64,7 +64,11 @@ async function submitPayment(req, res) {
 
         return res.status(200).json({ success: true, message: 'Payment submitted' });
     } catch (error) {
-        console.error('Submit payment error:', error);
+        console.error('Submit payment error:', {
+            message: error.message,
+            code: error.code,
+            stack: error.stack
+        });
         return res.status(500).json({ error: 'Internal server error' });
     }
 }
@@ -109,7 +113,11 @@ async function approvePayment(req, res) {
 
         return res.status(200).json({ success: true, message: 'Payment approved and credits added' });
     } catch (error) {
-        console.error('Approve payment error:', error);
+        console.error('Approve payment error:', {
+            message: error.message,
+            code: error.code,
+            stack: error.stack
+        });
         return res.status(500).json({ error: 'Internal server error' });
     }
 }
@@ -119,9 +127,9 @@ async function getPendingPayments(req, res) {
     if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
 
     try {
+        // Query without orderBy to avoid composite index requirement
         const snapshot = await db.collection('payments')
             .where('status', '==', 'pending')
-            .orderBy('createdAt', 'desc')
             .get();
 
         const payments = [];
@@ -129,9 +137,21 @@ async function getPendingPayments(req, res) {
             payments.push({ id: doc.id, ...doc.data() });
         });
 
+        // Sort by createdAt in descending order (newest first)
+        payments.sort((a, b) => {
+            // Handle both ISO string dates and Firestore Timestamp objects
+            const dateA = a.createdAt?.toDate ? a.createdAt.toDate().getTime() : new Date(a.createdAt || 0).getTime();
+            const dateB = b.createdAt?.toDate ? b.createdAt.toDate().getTime() : new Date(b.createdAt || 0).getTime();
+            return dateB - dateA; // Descending order
+        });
+
         return res.status(200).json({ success: true, payments });
     } catch (error) {
-        console.error('Get pending payments error:', error);
+        console.error('Get pending payments error:', {
+            message: error.message,
+            code: error.code,
+            stack: error.stack
+        });
         return res.status(500).json({ error: 'Internal server error' });
     }
 }
@@ -144,9 +164,9 @@ async function getUserPayments(req, res) {
         const { userEmail } = req.method === 'POST' ? req.body : req.query;
         if (!userEmail) return res.status(400).json({ error: 'Email required' });
 
+        // Query without orderBy to avoid composite index requirement
         const snapshot = await db.collection('payments')
             .where('email', '==', userEmail)
-            .orderBy('createdAt', 'desc')
             .get();
 
         const payments = [];
@@ -154,9 +174,21 @@ async function getUserPayments(req, res) {
             payments.push({ id: doc.id, ...doc.data() });
         });
 
+        // Sort by createdAt in descending order (newest first)
+        payments.sort((a, b) => {
+            // Handle both ISO string dates and Firestore Timestamp objects
+            const dateA = a.createdAt?.toDate ? a.createdAt.toDate().getTime() : new Date(a.createdAt || 0).getTime();
+            const dateB = b.createdAt?.toDate ? b.createdAt.toDate().getTime() : new Date(b.createdAt || 0).getTime();
+            return dateB - dateA; // Descending order
+        });
+
         return res.status(200).json({ success: true, payments });
     } catch (error) {
-        console.error('Get user payments error:', error);
+        console.error('Get user payments error:', {
+            message: error.message,
+            code: error.code,
+            stack: error.stack
+        });
         return res.status(500).json({ error: 'Internal server error' });
     }
 }

@@ -61,7 +61,11 @@ async function registerMainAppUser(req, res) {
 
         return res.status(200).json({ success: true, message: 'User registered' });
     } catch (error) {
-        console.error('Registration error:', error);
+        console.error('Registration error:', {
+            message: error.message,
+            code: error.code,
+            stack: error.stack
+        });
         return res.status(500).json({ error: 'Internal server error' });
     }
 }
