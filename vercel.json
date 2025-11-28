@@ -8,6 +8,11 @@
     { "src": "/dashboard", "dest": "/dashboard.html" },
     { "src": "/login", "dest": "/login.html" },
     { "src": "/(.*)", "dest": "/index.html" }
-  ]
+  ],
+  "functions": {
+    "api/**/*.js": {
+      "includeFiles": "lib/**"
+    }
+  }
 }
 

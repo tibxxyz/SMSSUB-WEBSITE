@@ -1,4 +1,4 @@
-import { db } from './lib/firebase';
+import { db } from '../lib/firebase';
 import { checkAdminStatus } from './check-admin.js';
 
 export default async function handler(req, res) {

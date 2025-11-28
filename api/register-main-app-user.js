@@ -1,4 +1,4 @@
-import { db } from './lib/firebase';
+import { db } from '../lib/firebase';
 
 export default async function handler(req, res) {
     // Set CORS headers to allow requests from the main app (even if served from different port/domain locally)
