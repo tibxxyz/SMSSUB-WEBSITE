@@ -317,6 +317,7 @@
                     html += '<th style="padding: 0.75rem; text-align: left; color: var(--text-secondary);">Name</th>';
                     html += '<th style="padding: 0.75rem; text-align: left; color: var(--text-secondary);">SMS Credits</th>';
                     html += '<th style="padding: 0.75rem; text-align: left; color: var(--text-secondary);">Registered</th>';
+                    html += '<th style="padding: 0.75rem; text-align: left; color: var(--text-secondary);">Actions</th>';
                     html += '</tr></thead><tbody>';
 
                     data.users.forEach(user => {
@@ -327,11 +328,18 @@
                         const registered = user.createdAt || user.updatedAt || 'N/A';
                         const date = registered !== 'N/A' ? new Date(registered).toLocaleDateString() : 'N/A';
 
+                        // Escape quotes in name and email for onclick attribute
+                        const escapedEmail = user.email.replace(/'/g, "\\'");
+                        const escapedName = name.replace(/'/g, "\\'");
+
                         html += '<tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">';
                         html += `<td style="padding: 0.75rem;">${user.email}</td>`;
                         html += `<td style="padding: 0.75rem;">${name}</td>`;
                         html += `<td style="padding: 0.75rem; color: ${credits > 0 ? '#00ff88' : '#ff4d4d'};">${credits}</td>`;
                         html += `<td style="padding: 0.75rem; color: var(--text-secondary); font-size: 0.9rem;">${date}</td>`;
+                        html += `<td style="padding: 0.75rem;">`;
+                        html += `<button class="btn" onclick="deleteUser('${escapedEmail}', '${escapedName}')" style="padding: 0.3rem 0.8rem; font-size: 0.8rem; background: #dc3545; color: white; border: none; cursor: pointer;">Delete</button>`;
+                        html += `</td>`;
                         html += '</tr>';
                     });
 
@@ -677,6 +685,42 @@
             } catch (error) {
                 addLog(`❌ Delete error: ${error.message}`);
                 alert('Error deleting payment');
+            }
+        }
+
+        // Delete user
+        async function deleteUser(userEmail, userName) {
+            if (!confirm(`Delete user ${userName} (${userEmail})? This action cannot be undone.`)) return;
+
+            addLog(`Deleting user ${userEmail}...`);
+
+            const adminEmail = sessionStorage.getItem('adminEmail');
+            if (!adminEmail) {
+                alert('Authentication required. Please login again.');
+                window.location.href = 'admin-login.html';
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/delete-user', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userEmail })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    addLog(`✅ User ${userEmail} deleted successfully.`);
+                    loadAllUsers(); // Refresh user list
+                    loadUserCount(); // Update user count on dashboard
+                } else {
+                    addLog(`❌ Delete failed: ${data.error}`);
+                    alert('Delete failed: ' + data.error);
+                }
+            } catch (error) {
+                addLog(`❌ Delete error: ${error.message}`);
+                alert('Error deleting user');
             }
         }
 

@@ -25,6 +25,10 @@
       "destination": "/api/users?action=admin-login"
     },
     {
+      "source": "/api/delete-user",
+      "destination": "/api/users?action=delete-user"
+    },
+    {
       "source": "/api/submit-payment",
       "destination": "/api/payments?action=submit-payment"
     },

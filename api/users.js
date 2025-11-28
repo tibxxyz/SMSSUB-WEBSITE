@@ -34,6 +34,8 @@ export default async function handler(req, res) {
             return checkAdmin(req, res);
         case 'admin-login':
             return adminLogin(req, res);
+        case 'delete-user':
+            return deleteUser(req, res);
         default:
             return res.status(400).json({ error: 'Invalid action' });
     }
@@ -210,6 +212,33 @@ async function adminLogin(req, res) {
         });
     } catch (error) {
         console.error('Admin login error:', error);
+        return res.status(500).json({ error: 'Internal server error' });
+    }
+}
+
+// --- Delete User ---
+async function deleteUser(req, res) {
+    if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+
+    try {
+        const { userEmail } = req.body;
+        if (!userEmail) return res.status(400).json({ error: 'Email is required' });
+
+        const userRef = db.collection('users').doc(userEmail);
+        const userDoc = await userRef.get();
+
+        if (!userDoc.exists) return res.status(404).json({ error: 'User not found' });
+
+        // Delete the user document
+        await userRef.delete();
+
+        return res.status(200).json({ success: true, message: 'User deleted' });
+    } catch (error) {
+        console.error('Delete user error:', {
+            message: error.message,
+            code: error.code,
+            stack: error.stack
+        });
         return res.status(500).json({ error: 'Internal server error' });
     }
 }
