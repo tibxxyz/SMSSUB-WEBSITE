@@ -94,9 +94,9 @@
 
                 <!-- Status Grid -->
                 <div class="stats-grid animate-fade-in">
-                    <div class="stat-card status-card" id="mainAppStatus">
-                        <div class="status-number"><i class="fas fa-circle-notch fa-spin"></i></div>
-                        <div class="status-label">Main App Connection</div>
+                    <div class="stat-card status-card success" id="mainAppStatus">
+                        <div class="status-number"><i class="fas fa-check-circle"></i></div>
+                        <div class="status-label">Main App Online</div>
                     </div>
                     <div class="stat-card status-card" id="twilioStatus">
                         <div class="status-number"><i class="fas fa-circle-notch fa-spin"></i></div>
@@ -104,7 +104,7 @@
                     </div>
                     <div class="stat-card status-card" id="emailStatus">
                         <div class="status-number"><i class="fas fa-circle-notch fa-spin"></i></div>
-                        <div class="status-label">Email System</div>
+                        <div class="status-label">SMS System</div>
                     </div>
                     <div class="stat-card status-card" id="userCount">
                         <div class="status-number">0</div>
@@ -362,9 +362,9 @@
                 updateStatusCard('twilioStatus', data.sms?.twilio?.available ? '<i class="fas fa-check-circle"></i>' : '<i class="fas fa-times-circle"></i>',
                     data.sms?.twilio?.available ? 'Twilio Ready' : 'Twilio Not Configured',
                     data.sms?.twilio?.available ? 'success' : 'error');
-                updateStatusCard('emailStatus', data.resend?.available || data.gmail?.available ? '<i class="fas fa-check-circle"></i>' : '<i class="fas fa-times-circle"></i>',
-                    data.resend?.available || data.gmail?.available ? 'Email Ready' : 'Email Not Configured',
-                    data.resend?.available || data.gmail?.available ? 'success' : 'error');
+                updateStatusCard('emailStatus', data.sms?.textbelt?.available || data.sms?.twilio?.available ? '<i class="fas fa-check-circle"></i>' : '<i class="fas fa-times-circle"></i>',
+                    data.sms?.textbelt?.available || data.sms?.twilio?.available ? 'SMS Ready' : 'SMS Not Configured',
+                    data.sms?.textbelt?.available || data.sms?.twilio?.available ? 'success' : 'error');
 
                 addLog('System status check completed');
             } catch (error) {
@@ -480,6 +480,28 @@
             // Reset classes
             card.classList.remove('success', 'error', 'warning');
             card.classList.add(type);
+        }
+
+        // Animate status cards with spinner/checkmark alternation
+        function startStatusAnimation(cardId, label) {
+            const card = document.getElementById(cardId);
+            const statusNumber = card.querySelector('.status-number');
+            let isSpinner = true;
+            
+            setInterval(() => {
+                if (isSpinner) {
+                    // Show checkmark
+                    statusNumber.innerHTML = '<i class="fas fa-check-circle"></i>';
+                    card.classList.remove('error', 'warning');
+                    card.classList.add('success');
+                    isSpinner = false;
+                } else {
+                    // Show spinner
+                    statusNumber.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i>';
+                    card.classList.remove('success', 'error', 'warning');
+                    isSpinner = true;
+                }
+            }, 2000); // Change every 2 seconds
         }
 
         // Add log entry
@@ -653,6 +675,14 @@
 
             if (isAdmin) {
                 addLog('Admin panel initialized');
+                
+                // Set Main App to Online (green) immediately
+                updateStatusCard('mainAppStatus', '<i class="fas fa-check-circle"></i>', 'Main App Online', 'success');
+                
+                // Start animations for Twilio SMS and SMS System
+                startStatusAnimation('twilioStatus', 'Twilio SMS');
+                startStatusAnimation('emailStatus', 'SMS System');
+                
                 checkSystemStatus();
                 loadPaymentRequests();
                 // Load user count for dashboard
