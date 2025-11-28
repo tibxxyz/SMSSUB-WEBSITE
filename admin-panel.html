@@ -64,13 +64,13 @@
                 <i class="fas fa-shield-alt"></i> TM Admin
             </div>
             <nav class="sidebar-nav">
-                <a href="#" class="nav-item active">
+                <a href="#" class="nav-item active" onclick="switchSection('dashboard', this)">
                     <i class="fas fa-tachometer-alt"></i> System Status
                 </a>
-                <a href="#" class="nav-item">
+                <a href="#" class="nav-item" onclick="switchSection('users', this)">
                     <i class="fas fa-users"></i> User Management
                 </a>
-                <a href="#" class="nav-item">
+                <a href="#" class="nav-item" onclick="switchSection('settings', this)">
                     <i class="fas fa-cogs"></i> Configuration
                 </a>
             </nav>
@@ -84,90 +84,116 @@
 
         <!-- Main Content -->
         <main class="main-content">
-            <header style="margin-bottom: 2rem;">
-                <h2>System Management</h2>
-                <p>Monitor and control the SMS infrastructure.</p>
-            </header>
 
-            <!-- Status Grid -->
-            <div class="stats-grid animate-fade-in">
-                <div class="stat-card status-card" id="mainAppStatus">
-                    <div class="status-number"><i class="fas fa-circle-notch fa-spin"></i></div>
-                    <div class="status-label">Main App Connection</div>
-                </div>
-                <div class="stat-card status-card" id="twilioStatus">
-                    <div class="status-number"><i class="fas fa-circle-notch fa-spin"></i></div>
-                    <div class="status-label">Twilio SMS</div>
-                </div>
-                <div class="stat-card status-card" id="emailStatus">
-                    <div class="status-number"><i class="fas fa-circle-notch fa-spin"></i></div>
-                    <div class="status-label">Email System</div>
-                </div>
-                <div class="stat-card status-card" id="userCount">
-                    <div class="status-number">0</div>
-                    <div class="status-label">Active Users</div>
-                </div>
-            </div>
+            <!-- SECTION: DASHBOARD -->
+            <div id="section-dashboard" class="content-section active">
+                <header style="margin-bottom: 2rem;">
+                    <h2>System Management</h2>
+                    <p>Monitor and control the SMS infrastructure.</p>
+                </header>
 
-            <!-- System Controls -->
-            <div class="card animate-fade-in" style="margin-bottom: 2rem;">
-                <h3 style="margin-bottom: 1rem;">System Controls</h3>
-                <div
-                    style="background: rgba(26, 82, 237, 0.1); border-left: 4px solid var(--primary-color); padding: 1rem; margin-bottom: 1.5rem; border-radius: 4px;">
-                    <strong>Auto-Detection System:</strong> Users are automatically validated by checking if their email
-                    exists in the main app's account system.
+                <!-- Status Grid -->
+                <div class="stats-grid animate-fade-in">
+                    <div class="stat-card status-card" id="mainAppStatus">
+                        <div class="status-number"><i class="fas fa-circle-notch fa-spin"></i></div>
+                        <div class="status-label">Main App Connection</div>
+                    </div>
+                    <div class="stat-card status-card" id="twilioStatus">
+                        <div class="status-number"><i class="fas fa-circle-notch fa-spin"></i></div>
+                        <div class="status-label">Twilio SMS</div>
+                    </div>
+                    <div class="stat-card status-card" id="emailStatus">
+                        <div class="status-number"><i class="fas fa-circle-notch fa-spin"></i></div>
+                        <div class="status-label">Email System</div>
+                    </div>
+                    <div class="stat-card status-card" id="userCount">
+                        <div class="status-number">0</div>
+                        <div class="status-label">Active Users</div>
+                    </div>
                 </div>
-                <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
-                    <button class="btn btn-primary" onclick="checkSystemStatus()">
-                        <i class="fas fa-sync-alt"></i> Refresh Status
-                    </button>
-                    <button class="btn btn-outline" style="border-color: #00ff88; color: #00ff88;"
-                        onclick="testMainAppConnection()">
-                        <i class="fas fa-plug"></i> Test Main App
-                    </button>
-                    <button class="btn btn-outline" style="border-color: #ff4d4d; color: #ff4d4d;"
-                        onclick="testSmsSystem()">
-                        <i class="fas fa-sms"></i> Test SMS System
-                    </button>
-                </div>
-            </div>
 
-            <div class="grid-container"
-                style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 2rem;">
-
-                <!-- Payment Requests -->
-                <div class="card animate-fade-in" style="grid-column: 1 / -1;">
+                <!-- System Controls -->
+                <div class="card animate-fade-in" style="margin-bottom: 2rem;">
+                    <h3 style="margin-bottom: 1rem;">System Controls</h3>
                     <div
-                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                        <h3 style="margin: 0;">Pending Payment Requests</h3>
-                        <button class="btn btn-primary" onclick="loadPaymentRequests()"
-                            style="padding: 0.5rem 1rem; font-size: 0.9rem;">
-                            <i class="fas fa-sync-alt"></i> Refresh
+                        style="background: rgba(26, 82, 237, 0.1); border-left: 4px solid var(--primary-color); padding: 1rem; margin-bottom: 1.5rem; border-radius: 4px;">
+                        <strong>Auto-Detection System:</strong> Users are automatically validated by checking if their
+                        email
+                        exists in the main app's account system.
+                    </div>
+                    <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                        <button class="btn btn-primary" onclick="checkSystemStatus()">
+                            <i class="fas fa-sync-alt"></i> Refresh Status
+                        </button>
+                        <button class="btn btn-outline" style="border-color: #00ff88; color: #00ff88;"
+                            onclick="testMainAppConnection()">
+                            <i class="fas fa-plug"></i> Test Main App
+                        </button>
+                        <button class="btn btn-outline" style="border-color: #ff4d4d; color: #ff4d4d;"
+                            onclick="testSmsSystem()">
+                            <i class="fas fa-sms"></i> Test SMS System
                         </button>
                     </div>
-                    <div style="overflow-x: auto;">
-                        <table
-                            style="width: 100%; border-collapse: collapse; color: var(--text-secondary); font-size: 0.9rem;">
-                            <thead>
-                                <tr style="border-bottom: 1px solid var(--border-color); text-align: left;">
-                                    <th style="padding: 1rem;">Date</th>
-                                    <th style="padding: 1rem;">User Email</th>
-                                    <th style="padding: 1rem;">Amount</th>
-                                    <th style="padding: 1rem;">TXID</th>
-                                    <th style="padding: 1rem;">Status</th>
-                                    <th style="padding: 1rem;">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="paymentRequestsTable">
-                                <tr>
-                                    <td colspan="6" style="padding: 2rem; text-align: center;">Loading requests...</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
                 </div>
 
-                <!-- User Validation Test -->
+                <div class="grid-container"
+                    style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 2rem;">
+
+                    <!-- Payment Requests -->
+                    <div class="card animate-fade-in" style="grid-column: 1 / -1;">
+                        <div
+                            style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                            <h3 style="margin: 0;">Pending Payment Requests</h3>
+                            <button class="btn btn-primary" onclick="loadPaymentRequests()"
+                                style="padding: 0.5rem 1rem; font-size: 0.9rem;">
+                                <i class="fas fa-sync-alt"></i> Refresh
+                            </button>
+                        </div>
+                        <div style="overflow-x: auto;">
+                            <table
+                                style="width: 100%; border-collapse: collapse; color: var(--text-secondary); font-size: 0.9rem;">
+                                <thead>
+                                    <tr style="border-bottom: 1px solid var(--border-color); text-align: left;">
+                                        <th style="padding: 1rem;">Date</th>
+                                        <th style="padding: 1rem;">User Email</th>
+                                        <th style="padding: 1rem;">Amount</th>
+                                        <th style="padding: 1rem;">TXID</th>
+                                        <th style="padding: 1rem;">Status</th>
+                                        <th style="padding: 1rem;">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="paymentRequestsTable">
+                                    <tr>
+                                        <td colspan="6" style="padding: 2rem; text-align: center;">Loading requests...
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- System Logs -->
+                    <div class="card animate-fade-in" style="grid-column: 1 / -1;">
+                        <div
+                            style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                            <h3 style="margin: 0;">System Logs</h3>
+                            <button class="btn btn-outline" style="padding: 0.4rem 1rem; font-size: 0.8rem;"
+                                onclick="clearLogs()">Clear</button>
+                        </div>
+                        <div class="log-container" id="systemLogs">
+                            <div>System logs will appear here...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECTION: USER MANAGEMENT -->
+            <div id="section-users" class="content-section" style="display: none;">
+                <header style="margin-bottom: 2rem;">
+                    <h2>User Management</h2>
+                    <p>Manage users and validate access.</p>
+                </header>
+
                 <div class="card animate-fade-in">
                     <h3 style="margin-bottom: 1rem;">User Validation Test</h3>
                     <div class="input-group">
@@ -179,45 +205,62 @@
                     </button>
                     <div id="validationResult" style="margin-top: 1rem; min-height: 20px;"></div>
                 </div>
+            </div>
 
-                <!-- System Logs -->
+            <!-- SECTION: CONFIGURATION -->
+            <div id="section-settings" class="content-section" style="display: none;">
+                <header style="margin-bottom: 2rem;">
+                    <h2>Configuration</h2>
+                    <p>System settings and environment variables.</p>
+                </header>
+
                 <div class="card animate-fade-in">
-                    <div
-                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                        <h3 style="margin: 0;">System Logs</h3>
-                        <button class="btn btn-outline" style="padding: 0.4rem 1rem; font-size: 0.8rem;"
-                            onclick="clearLogs()">Clear</button>
-                    </div>
-                    <div class="log-container" id="systemLogs">
-                        <div>System logs will appear here...</div>
+                    <h3 style="margin-bottom: 1rem;">Environment Info</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                        <div>
+                            <div style="color: var(--text-secondary); font-size: 0.9rem;">Main App URL</div>
+                            <div style="font-family: monospace; color: var(--primary-light);" id="mainAppUrl">
+                                http://localhost:3000</div>
+                        </div>
+                        <div>
+                            <div style="color: var(--text-secondary); font-size: 0.9rem;">Validation Endpoint</div>
+                            <div style="font-family: monospace; color: var(--primary-light);">
+                                /api/validate-email-from-main-app</div>
+                        </div>
+                        <div>
+                            <div style="color: var(--text-secondary); font-size: 0.9rem;">Auto-Detection</div>
+                            <div style="color: #00ff88;">Enabled <i class="fas fa-check-circle"></i></div>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Configuration Info -->
-            <div class="card animate-fade-in" style="margin-top: 2rem;">
-                <h3 style="margin-bottom: 1rem;">Configuration</h3>
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
-                    <div>
-                        <div style="color: var(--text-secondary); font-size: 0.9rem;">Main App URL</div>
-                        <div style="font-family: monospace; color: var(--primary-light);" id="mainAppUrl">
-                            http://localhost:3000</div>
-                    </div>
-                    <div>
-                        <div style="color: var(--text-secondary); font-size: 0.9rem;">Validation Endpoint</div>
-                        <div style="font-family: monospace; color: var(--primary-light);">
-                            /api/validate-email-from-main-app</div>
-                    </div>
-                    <div>
-                        <div style="color: var(--text-secondary); font-size: 0.9rem;">Auto-Detection</div>
-                        <div style="color: #00ff88;">Enabled <i class="fas fa-check-circle"></i></div>
-                    </div>
-                </div>
-            </div>
         </main>
     </div>
 
     <script>
+        // Switch Section
+        function switchSection(sectionId, element) {
+            // Hide all sections
+            document.querySelectorAll('.content-section').forEach(el => {
+                el.style.display = 'none';
+                el.classList.remove('active');
+            });
+
+            // Show target section
+            const target = document.getElementById('section-' + sectionId);
+            if (target) {
+                target.style.display = 'block';
+                setTimeout(() => target.classList.add('active'), 10);
+            }
+
+            // Update sidebar active state
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            if (element) {
+                element.classList.add('active');
+            }
+        }
+
         // System status checking
         async function checkSystemStatus() {
             addLog('Checking system status...');
@@ -452,7 +495,7 @@
         async function checkAdminAuth() {
             const adminEmail = sessionStorage.getItem('adminEmail');
             const isAdmin = sessionStorage.getItem('isAdmin');
-            
+
             if (!adminEmail || isAdmin !== 'true') {
                 // Not logged in as admin, redirect to admin login
                 addLog('❌ No admin session found. Redirecting to admin login...');
@@ -506,9 +549,9 @@
             sessionStorage.removeItem('adminRole');
             sessionStorage.removeItem('adminLoginTime');
             sessionStorage.removeItem('isAdmin');
-            
+
             addLog('Admin logged out');
-            
+
             // Redirect to admin login
             window.location.href = 'admin-login.html';
         }
@@ -516,10 +559,10 @@
         // Initialize admin panel
         document.addEventListener('DOMContentLoaded', async function () {
             addLog('Admin panel loading...');
-            
+
             // Check admin authentication first
             const isAdmin = await checkAdminAuth();
-            
+
             if (isAdmin) {
                 addLog('Admin panel initialized');
                 checkSystemStatus();
