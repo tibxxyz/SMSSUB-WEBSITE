@@ -354,8 +354,8 @@ async function loadPaymentHistory() {
 
         const data = await response.json();
 
-        if (data.success && data.data.length > 0) {
-            const paymentsHTML = data.data.map(payment => {
+        if (data.success && data.payments && data.payments.length > 0) {
+            const paymentsHTML = data.payments.map(payment => {
                 const statusColor = payment.status === 'approved' ? '#28a745' : 
                                    payment.status === 'pending' ? '#ffc107' : '#dc3545';
                 const statusText = payment.status.charAt(0).toUpperCase() + payment.status.slice(1);
@@ -366,13 +366,14 @@ async function loadPaymentHistory() {
                     hour: '2-digit',
                     minute: '2-digit'
                 });
+                const credits = Math.floor(payment.amount); // $1 = 1 credit
 
                 return `
                     <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05);">
                         <div style="flex: 1;">
-                            <div style="font-weight: 600; margin-bottom: 0.25rem;">$${payment.amount} - ${payment.credits} SMS</div>
+                            <div style="font-weight: 600; margin-bottom: 0.25rem;">$${payment.amount} - ${credits} SMS</div>
                             <div style="font-size: 0.85rem; color: var(--text-secondary);">${date}</div>
-                            <div style="font-size: 0.8rem; color: var(--text-muted); font-family: monospace; margin-top: 0.25rem;">TXID: ${payment.txid.substring(0, 12)}...</div>
+                            <div style="font-size: 0.8rem; color: var(--text-muted); font-family: monospace; margin-top: 0.25rem;">TXID: ${payment.txid ? payment.txid.substring(0, 12) + '...' : 'N/A'}</div>
                         </div>
                         <div style="text-align: right;">
                             <span style="background: rgba(${payment.status === 'approved' ? '40, 167, 69' : payment.status === 'pending' ? '255, 193, 7' : '220, 53, 69'}, 0.1); color: ${statusColor}; padding: 0.3rem 0.8rem; border-radius: 4px; font-size: 0.85rem; font-weight: 600;">
@@ -474,20 +475,20 @@ async function checkPaymentConfirmations() {
 
         const data = await response.json();
 
-        if (data.success && data.data.length > 0) {
+        if (data.success && data.payments && data.payments.length > 0) {
             // Get last checked timestamp
             const lastChecked = sessionStorage.getItem('lastPaymentCheck') || '0';
             const lastCheckedTime = parseInt(lastChecked);
 
             // Find recently approved payments (within last 5 minutes)
-            const recentApproved = data.data.filter(payment => {
+            const recentApproved = data.payments.filter(payment => {
                 if (payment.status !== 'approved' || !payment.approvedAt) return false;
                 const approvedTime = new Date(payment.approvedAt).getTime();
                 return approvedTime > lastCheckedTime && approvedTime > (Date.now() - 5 * 60 * 1000);
             });
 
             if (recentApproved.length > 0) {
-                const totalCredits = recentApproved.reduce((sum, p) => sum + p.credits, 0);
+                const totalCredits = recentApproved.reduce((sum, p) => sum + Math.floor(p.amount), 0);
                 showNotification(`Payment approved! ${totalCredits} SMS credit${totalCredits > 1 ? 's' : ''} added to your account.`, 'success');
             }
 
