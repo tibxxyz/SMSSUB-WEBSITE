@@ -1,7 +1,7 @@
 import nodemailer from 'nodemailer';
 import { Resend } from 'resend';
 import admin from 'firebase-admin';
-import { db } from '../lib/firebase';
+import { db } from './lib/firebase';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
