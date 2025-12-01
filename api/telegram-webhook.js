@@ -426,18 +426,19 @@ async function listUsersFromTelegram(chatId, callbackQueryId = null) {
         snapshot.forEach((doc, index) => {
             const data = doc.data();
             const email = doc.id;
-            const name = [data.firstName, data.lastName].filter(Boolean).join(' ') || 'N/A';
+            const fullName = [data.firstName, data.lastName].filter(Boolean).join(' ');
+            const displayName = fullName || email.split('@')[0]; // Use email prefix if no name
             const credits = data.smsCredits || 0;
             const date = data.createdAt || data.updatedAt || 'N/A';
             
-            message += `${index + 1}. <b>${name}</b>\n`;
+            message += `${index + 1}. <b>${displayName}</b>\n`;
             message += `   Email: ${email}\n`;
             message += `   Credits: ${credits} SMS\n`;
             message += `   Date: ${date}\n\n`;
 
             buttons.push([
                 {
-                    text: `🗑️ Delete ${name || email.split('@')[0]}`,
+                    text: `🗑️ Delete ${displayName}`,
                     callback_data: `delete_user_${encodeURIComponent(email)}`
                 }
             ]);
