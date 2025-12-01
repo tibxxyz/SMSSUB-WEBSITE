@@ -341,23 +341,28 @@ async function listPendingPayments(chatId) {
             const data = doc.data();
             const paymentId = doc.id;
             const date = new Date(data.createdAt).toLocaleDateString();
+            const time = new Date(data.createdAt).toLocaleTimeString();
+            const userEmail = data.email || 'Unknown';
+            const emailShort = userEmail.split('@')[0]; // Get part before @ for shorter button text
             
-            message += `${index + 1}. <b>$${data.amount}</b> - ${data.email}\n`;
+            message += `${index + 1}. <b>$${data.amount}</b> - ${userEmail}\n`;
             message += `   TXID: <code>${data.txid}</code>\n`;
-            message += `   Date: ${date}\n`;
+            message += `   Date: ${date} ${time}\n`;
             message += `   ID: <code>${paymentId}</code>\n\n`;
 
             buttons.push([
                 {
-                    text: `✅ Approve ${index + 1}`,
+                    text: `✅ Approve ${emailShort}`,
                     callback_data: `approve_${paymentId}`
                 },
                 {
-                    text: `❌ Reject ${index + 1}`,
+                    text: `❌ Reject ${emailShort}`,
                     callback_data: `reject_${paymentId}`
-                },
+                }
+            ]);
+            buttons.push([
                 {
-                    text: `🗑️ Delete ${index + 1}`,
+                    text: `🗑️ Delete ${emailShort}`,
                     callback_data: `delete_payment_${paymentId}`
                 }
             ]);
