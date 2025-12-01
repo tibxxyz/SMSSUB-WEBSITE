@@ -337,7 +337,9 @@ async function listPendingPayments(chatId) {
         let message = `📋 <b>Pending Payments (${snapshot.size})</b>\n\n`;
         const buttons = [];
 
-        snapshot.forEach((doc, index) => {
+        let paymentIndex = 0;
+        snapshot.forEach((doc) => {
+            paymentIndex++;
             const data = doc.data();
             const paymentId = doc.id;
             const date = new Date(data.createdAt).toLocaleDateString();
@@ -345,7 +347,7 @@ async function listPendingPayments(chatId) {
             const userEmail = data.email || 'Unknown';
             const emailShort = userEmail.split('@')[0]; // Get part before @ for shorter button text
             
-            message += `${index + 1}. <b>$${data.amount}</b> - ${userEmail}\n`;
+            message += `${paymentIndex}. <b>$${data.amount}</b> - ${userEmail}\n`;
             message += `   TXID: <code>${data.txid}</code>\n`;
             message += `   Date: ${date} ${time}\n`;
             message += `   ID: <code>${paymentId}</code>\n\n`;
@@ -423,7 +425,9 @@ async function listUsersFromTelegram(chatId, callbackQueryId = null) {
         let message = `👥 <b>Users (${snapshot.size})</b>\n\n`;
         const buttons = [];
 
-        snapshot.forEach((doc, index) => {
+        let userIndex = 0;
+        snapshot.forEach((doc) => {
+            userIndex++;
             const data = doc.data();
             const email = doc.id;
             const fullName = [data.firstName, data.lastName].filter(Boolean).join(' ');
@@ -431,7 +435,7 @@ async function listUsersFromTelegram(chatId, callbackQueryId = null) {
             const credits = data.smsCredits || 0;
             const date = data.createdAt || data.updatedAt || 'N/A';
             
-            message += `${index + 1}. <b>${displayName}</b>\n`;
+            message += `${userIndex}. <b>${displayName}</b>\n`;
             message += `   Email: ${email}\n`;
             message += `   Credits: ${credits} SMS\n`;
             message += `   Date: ${date}\n\n`;
