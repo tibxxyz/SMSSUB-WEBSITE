@@ -88,6 +88,12 @@ async function handleCallbackQuery(callbackQuery) {
         } else if (data === 'list_pending') {
             await listPendingPayments(chatId);
             await answerCallbackQuery(callbackQuery.id, "Loading pending payments...");
+        } else if (data === 'show_stats') {
+            await sendStats(chatId);
+            await answerCallbackQuery(callbackQuery.id, "Loading statistics...");
+        } else if (data === 'show_monthly') {
+            await sendMonthlyReport(chatId);
+            await answerCallbackQuery(callbackQuery.id, "Generating monthly report...");
         }
     } catch (error) {
         console.error('Error handling callback query:', error);
@@ -592,30 +598,53 @@ ${pendingPayments > 0 ? '⚠️ <b>Action Required:</b> ' + pendingPayments + ' 
 async function sendHelpMessage(chatId) {
     console.log('Sending help message to chatId:', chatId);
     const message = `
-🤖 <b>Telegram Bot Commands</b>
+🤖 <b>Welcome to SMS Subscription Bot!</b>
 
-<b>Payment Management:</b>
+Use the buttons below to quickly access features, or type commands manually.
+
+<b>Quick Actions:</b>
+• Tap buttons below for instant access
+• Payment notifications include action buttons
+• User lists include delete buttons
+
+<b>Available Commands:</b>
 /pending - List pending payments
-/pending_alert - Alert about pending payments
-/approve &lt;id&gt; - Approve payment
-/reject &lt;id&gt; - Reject payment
-/delete_payment &lt;id&gt; - Delete payment
-
-<b>User Management:</b>
 /users - List all users
-/delete_user &lt;email&gt; - Delete user
-
-<b>Reports:</b>
 /stats - Current statistics
 /monthly - Monthly growth report
-
-<b>Help:</b>
 /help - Show this message
-/start - Show this message
-
-<b>Note:</b> You can also use buttons in payment notifications to approve/reject directly.
     `;
-    await sendTelegramNotification(message, { chatId });
+    
+    const inlineKeyboard = [
+        [
+            {
+                text: '📋 Pending Payments',
+                callback_data: 'list_pending'
+            },
+            {
+                text: '👥 View Users',
+                callback_data: 'list_users'
+            }
+        ],
+        [
+            {
+                text: '📊 Statistics',
+                callback_data: 'show_stats'
+            },
+            {
+                text: '📈 Monthly Report',
+                callback_data: 'show_monthly'
+            }
+        ],
+        [
+            {
+                text: '🔗 Open Admin Panel',
+                url: process.env.ADMIN_PANEL_URL || 'https://smssub-website.vercel.app/admin-panel.html'
+            }
+        ]
+    ];
+    
+    await sendTelegramNotification(message, { chatId, inlineKeyboard });
 }
 
 // Answer callback query
