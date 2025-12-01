@@ -20,13 +20,15 @@
                 <i class="fas fa-ticket-alt"></i> TM Pro
             </div>
             <nav class="nav">
-                <!-- Mobile menu toggle could go here -->
+                <button class="mobile-menu-toggle" onclick="toggleMobileNav()" style="display: none; background: transparent; border: 1px solid var(--border-color); color: white; padding: 0.5rem; border-radius: 6px; cursor: pointer;">
+                    <i class="fas fa-bars"></i>
+                </button>
             </nav>
-            <div class="nav-actions">
+            <div class="nav-actions" id="navActions">
                 <a href="admin-login.html" class="btn btn-outline" style="margin-right: 0.5rem;">
-                    <i class="fas fa-shield-alt"></i> Admin
+                    <i class="fas fa-shield-alt"></i> <span class="nav-text">Admin</span>
                 </a>
-                <a href="login.html" class="btn btn-primary">Login / Sign Up</a>
+                <a href="login.html" class="btn btn-primary"><span class="nav-text">Login / Sign Up</span></a>
             </div>
         </div>
     </header>
@@ -225,6 +227,27 @@
     </footer>
 
     <script src="js/main.js"></script>
+    <script>
+        // Mobile navigation toggle
+        function toggleMobileNav() {
+            const navActions = document.getElementById('navActions');
+            navActions.classList.toggle('mobile-open');
+        }
+
+        // Show/hide mobile menu toggle based on screen size
+        function updateMobileMenu() {
+            const toggle = document.querySelector('.mobile-menu-toggle');
+            if (window.innerWidth <= 768) {
+                toggle.style.display = 'block';
+            } else {
+                toggle.style.display = 'none';
+                document.getElementById('navActions').classList.remove('mobile-open');
+            }
+        }
+
+        window.addEventListener('resize', updateMobileMenu);
+        updateMobileMenu();
+    </script>
 </body>
 
 </html>

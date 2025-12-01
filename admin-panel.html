@@ -57,9 +57,15 @@
 </head>
 
 <body>
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" onclick="toggleMobileMenu()" style="display: none;">
+        <i class="fas fa-bars"></i>
+    </button>
+    <div class="mobile-menu-overlay" onclick="closeMobileMenu()"></div>
+
     <div class="dashboard-layout">
         <!-- Sidebar -->
-        <aside class="sidebar">
+        <aside class="sidebar" id="sidebar">
             <div class="logo" style="margin-bottom: 2rem;">
                 <i class="fas fa-shield-alt"></i> TM Admin
             </div>
@@ -256,7 +262,46 @@
 
     <script>
         // Switch Section
+        // Mobile menu functions
+        function toggleMobileMenu() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.querySelector('.mobile-menu-overlay');
+            const toggle = document.querySelector('.mobile-menu-toggle');
+            
+            sidebar.classList.toggle('mobile-open');
+            overlay.classList.toggle('active');
+            
+            // Change icon
+            const icon = toggle.querySelector('i');
+            if (sidebar.classList.contains('mobile-open')) {
+                icon.classList.remove('fa-bars');
+                icon.classList.add('fa-times');
+            } else {
+                icon.classList.remove('fa-times');
+                icon.classList.add('fa-bars');
+            }
+        }
+
+        function closeMobileMenu() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.querySelector('.mobile-menu-overlay');
+            const toggle = document.querySelector('.mobile-menu-toggle');
+            
+            sidebar.classList.remove('mobile-open');
+            overlay.classList.remove('active');
+            
+            const icon = toggle.querySelector('i');
+            icon.classList.remove('fa-times');
+            icon.classList.add('fa-bars');
+        }
+
+        // Close mobile menu when clicking nav items
         function switchSection(sectionId, element) {
+            // Close mobile menu on mobile devices
+            if (window.innerWidth <= 768) {
+                closeMobileMenu();
+            }
+            
             // Hide all sections
             document.querySelectorAll('.content-section').forEach(el => {
                 el.style.display = 'none';
