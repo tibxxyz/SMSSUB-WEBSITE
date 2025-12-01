@@ -377,11 +377,12 @@
                         const escapedEmail = user.email.replace(/'/g, "\\'");
                         const escapedName = name.replace(/'/g, "\\'");
 
+                        const displayName = name !== 'N/A' ? name : user.email.split('@')[0];
                         html += '<tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">';
-                        html += `<td style="padding: 0.75rem;">${user.email}</td>`;
-                        html += `<td style="padding: 0.75rem;">${name}</td>`;
-                        html += `<td style="padding: 0.75rem; color: ${credits > 0 ? '#00ff88' : '#ff4d4d'};">${credits}</td>`;
-                        html += `<td style="padding: 0.75rem; color: var(--text-secondary); font-size: 0.9rem;">${date}</td>`;
+                        html += `<td data-label="Email" style="padding: 0.75rem;">${user.email}</td>`;
+                        html += `<td data-label="Name" style="padding: 0.75rem;">${displayName}</td>`;
+                        html += `<td data-label="SMS Credits" style="padding: 0.75rem; color: ${credits > 0 ? '#00ff88' : '#ff4d4d'};">${credits}</td>`;
+                        html += `<td data-label="Registered" style="padding: 0.75rem; color: var(--text-secondary); font-size: 0.9rem;">${date}</td>`;
                         html += `<td style="padding: 0.75rem;">`;
                         html += `<button class="btn" onclick="deleteUser('${escapedEmail}', '${escapedName}')" style="padding: 0.3rem 0.8rem; font-size: 0.8rem; background: #dc3545; color: white; border: none; cursor: pointer;">Delete</button>`;
                         html += `</td>`;
