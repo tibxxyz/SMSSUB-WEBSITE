@@ -598,12 +598,12 @@
                 if (data.success && data.payments.length > 0) {
                     tableBody.innerHTML = data.payments.map(payment => `
                         <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
-                            <td style="padding: 1rem;">${new Date(payment.createdAt).toLocaleDateString()}</td>
-                            <td style="padding: 1rem;">${payment.email}</td>
-                            <td style="padding: 1rem; color: #00ff88;">$${payment.amount}</td>
-                            <td style="padding: 1rem; font-family: monospace;">${payment.txid.substring(0, 8)}...</td>
-                            <td style="padding: 1rem;"><span style="background: rgba(255, 204, 0, 0.1); color: #ffcc00; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.8rem;">Pending</span></td>
-                            <td style="padding: 1rem;">
+                            <td data-label="Date" style="padding: 1rem;">${new Date(payment.createdAt).toLocaleDateString()}</td>
+                            <td data-label="User Email" style="padding: 1rem;">${payment.email}</td>
+                            <td data-label="Amount" style="padding: 1rem; color: #00ff88;">$${payment.amount}</td>
+                            <td data-label="TXID" style="padding: 1rem; font-family: monospace; font-size: 0.85rem;">${payment.txid.substring(0, 12)}...</td>
+                            <td data-label="Status" style="padding: 1rem;"><span style="background: rgba(255, 204, 0, 0.1); color: #ffcc00; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.8rem;">Pending</span></td>
+                            <td data-label="Actions" style="padding: 1rem;">
                                 <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
                                     <button class="btn btn-primary" onclick="approvePayment('${payment.id}', '${payment.email}', ${payment.amount})" style="padding: 0.3rem 0.8rem; font-size: 0.8rem;">
                                         Approve
