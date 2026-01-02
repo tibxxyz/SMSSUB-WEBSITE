@@ -1,7 +1,7 @@
 # Cloudflare Pages Configuration
 name = "smssub-website"
-compatibility_date = "2024-01-01"
+compatibility_date = "2024-09-23"
 compatibility_flags = ["nodejs_compat"]
 
-# Output directory for Pages (required for wrangler.toml to be recognized)
+# Output directory for Pages
 pages_build_output_dir = "."
