@@ -1,7 +1,7 @@
 /**
  * Payments API for Cloudflare Pages Functions
  */
-import { initFirebase, getDb, getAdmin } from '../lib/firebase.js';
+import { initFirebase, getDb } from '../lib/firebase.js';
 import { sendTelegramNotification, sendPaymentNotificationWithButtons } from '../lib/telegram.js';
 
 // CORS headers
@@ -124,22 +124,24 @@ async function approvePayment(request, db, env) {
 
         const userEmail = paymentData.email;
         const creditsToAdd = Math.floor(paymentData.amount);
-        const admin = getAdmin();
 
-        await db.runTransaction(async (t) => {
-            t.update(paymentRef, {
-                status: 'approved',
-                approvedBy: adminEmail || 'admin',
-                approvedAt: new Date().toISOString()
-            });
-
-            const userRef = db.collection('users').doc(userEmail);
-            t.set(userRef, {
-                smsCredits: admin.firestore.FieldValue.increment(creditsToAdd),
-                lastPaymentDate: new Date().toISOString(),
-                subscriptionStatus: 'active'
-            }, { merge: true });
+        // Update payment status
+        await paymentRef.update({
+            status: 'approved',
+            approvedBy: adminEmail || 'admin',
+            approvedAt: new Date().toISOString()
         });
+
+        // Get current user credits and increment
+        const userRef = db.collection('users').doc(userEmail);
+        const userDoc = await userRef.get();
+        const currentCredits = userDoc.exists ? (userDoc.data().smsCredits || 0) : 0;
+
+        await userRef.set({
+            smsCredits: currentCredits + creditsToAdd,
+            lastPaymentDate: new Date().toISOString(),
+            subscriptionStatus: 'active'
+        }, { merge: true });
 
         const message = `
 ✅ <b>Payment Approved!</b>
