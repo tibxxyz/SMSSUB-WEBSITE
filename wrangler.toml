@@ -1,0 +1,17 @@
+# Cloudflare Pages Configuration (for local development with wrangler)
+name = "smssub-website"
+compatibility_date = "2024-01-01"
+compatibility_flags = ["nodejs_compat"]
+
+# Local development
+[dev]
+  port = 8788
+
+# Environment variables (set these in Cloudflare Dashboard for production)
+# [vars]
+# FIREBASE_PROJECT_ID = ""
+# FIREBASE_CLIENT_EMAIL = ""
+# FIREBASE_PRIVATE_KEY = ""
+# TELEGRAM_BOT_TOKEN = ""
+# TELEGRAM_ADMIN_CHAT_ID = ""
+# ADMIN_PANEL_URL = ""

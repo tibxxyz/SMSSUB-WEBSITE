@@ -1,0 +1,20 @@
+# Security Headers for all pages
+/*
+  Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
+  X-Frame-Options: SAMEORIGIN
+  X-Content-Type-Options: nosniff
+  X-XSS-Protection: 1; mode=block
+  Referrer-Policy: strict-origin-when-cross-origin
+
+# CORS headers for API routes
+/api/*
+  Access-Control-Allow-Origin: *
+  Access-Control-Allow-Methods: GET, POST, OPTIONS
+  Access-Control-Allow-Headers: Content-Type, X-Requested-With
+
+# Prevent indexing
+/admin-login.html
+  X-Robots-Tag: noindex, nofollow
+
+/admin-panel.html
+  X-Robots-Tag: noindex, nofollow

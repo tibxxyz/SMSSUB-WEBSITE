@@ -1,0 +1,7 @@
+# Cloudflare Pages Redirects
+
+# Root serves index.html (Cloudflare default, explicit for clarity)
+/ /index.html 302
+
+# Vercel-style rewrites are handled automatically by /functions directory
+# API routes: /api/* -> /functions/api/*.js (automatic in Cloudflare Pages)
