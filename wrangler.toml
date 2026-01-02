@@ -1,7 +1,15 @@
-# Cloudflare Pages Configuration (for local development with wrangler)
+# Cloudflare Pages Configuration
 name = "smssub-website"
 compatibility_date = "2024-01-01"
 compatibility_flags = ["nodejs_compat"]
+
+# Pages build settings
+[build]
+  command = "npm install"
+
+# Bundle settings - keep firebase-admin as external
+[build.upload]
+  format = "modules"
 
 # Local development
 [dev]
@@ -14,4 +22,5 @@ compatibility_flags = ["nodejs_compat"]
 # FIREBASE_PRIVATE_KEY = ""
 # TELEGRAM_BOT_TOKEN = ""
 # TELEGRAM_ADMIN_CHAT_ID = ""
+# ADMIN_PANEL_URL = ""
 # ADMIN_PANEL_URL = ""
