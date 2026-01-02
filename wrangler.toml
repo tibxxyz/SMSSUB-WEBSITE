@@ -3,24 +3,13 @@ name = "smssub-website"
 compatibility_date = "2024-01-01"
 compatibility_flags = ["nodejs_compat"]
 
-# Pages build settings
+# REQUIRED: Output directory for Pages
+pages_build_output_dir = "."
+
+# Build command to install dependencies
 [build]
   command = "npm install"
-
-# Bundle settings - keep firebase-admin as external
-[build.upload]
-  format = "modules"
 
 # Local development
 [dev]
   port = 8788
-
-# Environment variables (set these in Cloudflare Dashboard for production)
-# [vars]
-# FIREBASE_PROJECT_ID = ""
-# FIREBASE_CLIENT_EMAIL = ""
-# FIREBASE_PRIVATE_KEY = ""
-# TELEGRAM_BOT_TOKEN = ""
-# TELEGRAM_ADMIN_CHAT_ID = ""
-# ADMIN_PANEL_URL = ""
-# ADMIN_PANEL_URL = ""
