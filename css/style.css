@@ -487,6 +487,7 @@ a:hover {
 
 /* Responsive */
 @media (max-width: 768px) {
+
     /* Typography */
     h1 {
         font-size: 2rem;
@@ -622,12 +623,20 @@ a:hover {
 
     .main-content {
         padding: 1rem;
-        padding-left: 3.5rem; /* Leave space for hamburger menu */
+        padding-left: 4rem;
+        /* More space for hamburger menu */
+        padding-top: 0.5rem;
         width: 100%;
     }
 
+    .main-content header {
+        padding-left: 0.5rem;
+    }
+
     .main-content header h2 {
-        padding-left: 0; /* Header text now has room */
+        padding-left: 0;
+        /* Header text now has room */
+        font-size: 1.4rem;
     }
 
     /* Mobile Menu Toggle */
@@ -745,7 +754,8 @@ a:hover {
     /* Inputs */
     .input-field {
         padding: 0.875rem 1.25rem;
-        font-size: 16px; /* Prevents zoom on iOS */
+        font-size: 16px;
+        /* Prevents zoom on iOS */
     }
 
     /* Auth */
