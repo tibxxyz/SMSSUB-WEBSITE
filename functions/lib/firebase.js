@@ -11,75 +11,107 @@ let tokenExpiry = 0;
  * Initialize Firebase with environment variables
  */
 export function initFirebase(env) {
+    console.log('[Firebase] Initializing...');
+    console.log('[Firebase] Project ID exists:', !!env.FIREBASE_PROJECT_ID);
+    console.log('[Firebase] Client Email exists:', !!env.FIREBASE_CLIENT_EMAIL);
+    console.log('[Firebase] Private Key exists:', !!env.FIREBASE_PRIVATE_KEY);
+    console.log('[Firebase] Private Key length:', env.FIREBASE_PRIVATE_KEY?.length || 0);
+
     firebaseConfig = {
         projectId: env.FIREBASE_PROJECT_ID,
         clientEmail: env.FIREBASE_CLIENT_EMAIL,
         privateKey: env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n')
     };
+
+    console.log('[Firebase] Config set. Project ID:', firebaseConfig.projectId);
+    console.log('[Firebase] Client Email:', firebaseConfig.clientEmail);
+    console.log('[Firebase] Private Key starts with BEGIN:', firebaseConfig.privateKey?.startsWith('-----BEGIN') || false);
 }
 
 /**
  * Create a JWT for Firebase authentication
  */
 async function createJWT() {
-    const now = Math.floor(Date.now() / 1000);
-    const exp = now + 3600; // 1 hour
+    console.log('[JWT] Creating JWT...');
 
-    const header = {
-        alg: 'RS256',
-        typ: 'JWT'
-    };
+    try {
+        const now = Math.floor(Date.now() / 1000);
+        const exp = now + 3600; // 1 hour
 
-    const payload = {
-        iss: firebaseConfig.clientEmail,
-        sub: firebaseConfig.clientEmail,
-        aud: 'https://oauth2.googleapis.com/token',
-        iat: now,
-        exp: exp,
-        scope: 'https://www.googleapis.com/auth/datastore https://www.googleapis.com/auth/firebase.database'
-    };
+        const header = {
+            alg: 'RS256',
+            typ: 'JWT'
+        };
 
-    const encodedHeader = btoa(JSON.stringify(header)).replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
-    const encodedPayload = btoa(JSON.stringify(payload)).replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
-    const signatureInput = `${encodedHeader}.${encodedPayload}`;
+        const payload = {
+            iss: firebaseConfig.clientEmail,
+            sub: firebaseConfig.clientEmail,
+            aud: 'https://oauth2.googleapis.com/token',
+            iat: now,
+            exp: exp,
+            scope: 'https://www.googleapis.com/auth/datastore https://www.googleapis.com/auth/firebase.database'
+        };
 
-    // Import private key
-    const pemContents = firebaseConfig.privateKey
-        .replace('-----BEGIN PRIVATE KEY-----', '')
-        .replace('-----END PRIVATE KEY-----', '')
-        .replace(/\s/g, '');
+        console.log('[JWT] Payload ISS:', payload.iss);
 
-    const binaryKey = Uint8Array.from(atob(pemContents), c => c.charCodeAt(0));
+        const encodedHeader = btoa(JSON.stringify(header)).replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
+        const encodedPayload = btoa(JSON.stringify(payload)).replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
+        const signatureInput = `${encodedHeader}.${encodedPayload}`;
 
-    const cryptoKey = await crypto.subtle.importKey(
-        'pkcs8',
-        binaryKey,
-        { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' },
-        false,
-        ['sign']
-    );
+        // Import private key
+        console.log('[JWT] Extracting private key...');
+        const pemContents = firebaseConfig.privateKey
+            .replace('-----BEGIN PRIVATE KEY-----', '')
+            .replace('-----END PRIVATE KEY-----', '')
+            .replace(/\s/g, '');
 
-    const signature = await crypto.subtle.sign(
-        'RSASSA-PKCS1-v1_5',
-        cryptoKey,
-        new TextEncoder().encode(signatureInput)
-    );
+        console.log('[JWT] PEM contents length:', pemContents.length);
 
-    const encodedSignature = btoa(String.fromCharCode(...new Uint8Array(signature)))
-        .replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
+        const binaryKey = Uint8Array.from(atob(pemContents), c => c.charCodeAt(0));
+        console.log('[JWT] Binary key length:', binaryKey.length);
 
-    return `${signatureInput}.${encodedSignature}`;
+        console.log('[JWT] Importing crypto key...');
+        const cryptoKey = await crypto.subtle.importKey(
+            'pkcs8',
+            binaryKey,
+            { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' },
+            false,
+            ['sign']
+        );
+        console.log('[JWT] Crypto key imported successfully');
+
+        console.log('[JWT] Signing...');
+        const signature = await crypto.subtle.sign(
+            'RSASSA-PKCS1-v1_5',
+            cryptoKey,
+            new TextEncoder().encode(signatureInput)
+        );
+
+        const encodedSignature = btoa(String.fromCharCode(...new Uint8Array(signature)))
+            .replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
+
+        console.log('[JWT] JWT created successfully');
+        return `${signatureInput}.${encodedSignature}`;
+    } catch (error) {
+        console.error('[JWT] Error creating JWT:', error.message);
+        console.error('[JWT] Error stack:', error.stack);
+        throw error;
+    }
 }
 
 /**
  * Get OAuth2 access token
  */
 async function getAccessToken() {
+    console.log('[Token] Getting access token...');
+
     const now = Date.now();
     if (accessToken && tokenExpiry > now) {
+        console.log('[Token] Using cached token');
         return accessToken;
     }
 
+    console.log('[Token] Fetching new token...');
     const jwt = await createJWT();
 
     const response = await fetch('https://oauth2.googleapis.com/token', {
@@ -89,15 +121,17 @@ async function getAccessToken() {
     });
 
     const data = await response.json();
+    console.log('[Token] Response status:', response.status);
 
     if (!response.ok) {
-        console.error('Token error:', data);
+        console.error('[Token] Token error:', JSON.stringify(data));
         throw new Error(`Failed to get access token: ${data.error_description || data.error}`);
     }
 
     accessToken = data.access_token;
     tokenExpiry = now + (data.expires_in - 60) * 1000;
 
+    console.log('[Token] Access token obtained successfully');
     return accessToken;
 }
 
