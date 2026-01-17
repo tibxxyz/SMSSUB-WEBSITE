@@ -2,7 +2,7 @@
  * Deduct SMS Credit API - Cloudflare Pages Function
  * Handles: /api/deduct-sms-credit
  */
-import { initFirebase, getDb, getAdmin } from '../lib/firebase.js';
+import { initFirebase, getDb, FieldValue } from '../lib/firebase.js';
 
 const corsHeaders = {
     'Access-Control-Allow-Origin': '*',
@@ -25,7 +25,6 @@ export async function onRequestPost(context) {
     const { request, env } = context;
     initFirebase(env);
     const db = getDb();
-    const admin = getAdmin();
 
     try {
         const body = await request.json();
@@ -37,35 +36,34 @@ export async function onRequestPost(context) {
 
         const userRef = db.collection('users').doc(userEmail);
 
-        await db.runTransaction(async (t) => {
-            const doc = await t.get(userRef);
-            if (!doc.exists) {
-                throw new Error("User does not exist!");
-            }
+        // Get current credits
+        const userDoc = await userRef.get();
+        if (!userDoc.exists) {
+            return jsonResponse({ error: 'User does not exist' }, 404);
+        }
 
-            const newCredits = (doc.data().smsCredits || 0) - 1;
-            if (newCredits < 0) {
-                throw new Error("Insufficient credits");
-            }
+        const currentCredits = userDoc.data().smsCredits || 0;
+        if (currentCredits <= 0) {
+            return jsonResponse({
+                error: 'Insufficient credits',
+                data: { smsCredits: 0, hasCredits: false }
+            }, 402);
+        }
 
-            t.update(userRef, {
-                smsCredits: newCredits,
-                lastUsed: new Date().toISOString(),
-                totalSent: admin.firestore.FieldValue.increment(1),
-                thisMonthSent: admin.firestore.FieldValue.increment(1)
-            });
+        // Deduct credit
+        const newCredits = currentCredits - 1;
+        await userRef.update({
+            smsCredits: newCredits,
+            lastUsed: new Date().toISOString()
         });
-
-        const updatedDoc = await userRef.get();
-        const smsCredits = updatedDoc.data().smsCredits || 0;
 
         return jsonResponse({
             success: true,
             message: 'Credit deducted successfully',
             data: {
                 userEmail,
-                smsCredits,
-                hasCredits: smsCredits > 0
+                smsCredits: newCredits,
+                hasCredits: newCredits > 0
             }
         });
     } catch (error) {
