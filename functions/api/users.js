@@ -93,6 +93,36 @@ async function registerMainAppUser(request, db, env) {
             finalLastName = nameParts.slice(1).join(' ') || '';
         }
 
+        const fullName = [finalFirstName, finalLastName].filter(Boolean).join(' ');
+
+        // Check if user already exists
+        const existingDoc = await db.collection('users').doc(email).get();
+        const isNewUser = !existingDoc.exists;
+
+        // Check for duplicate name (only if a name is provided)
+        if (fullName && fullName.trim()) {
+            const usersSnapshot = await db.collection('users').get();
+            let duplicateNameUser = null;
+
+            usersSnapshot.forEach(doc => {
+                if (doc.id !== email) { // Don't check against self
+                    const userData = doc.data();
+                    const existingFullName = [userData.firstName || '', userData.lastName || ''].filter(Boolean).join(' ');
+                    if (existingFullName.toLowerCase() === fullName.toLowerCase()) {
+                        duplicateNameUser = doc.id;
+                    }
+                }
+            });
+
+            if (duplicateNameUser) {
+                return jsonResponse({
+                    success: false,
+                    error: 'Name already taken',
+                    message: `The name "${fullName}" is already registered to another user.`
+                }, 409);
+            }
+        }
+
         const userData = {
             email,
             updatedAt: new Date().toISOString()
@@ -102,21 +132,32 @@ async function registerMainAppUser(request, db, env) {
         if (finalLastName) userData.lastName = finalLastName;
         if (finalPhone) userData.phone = finalPhone;
 
+        // Set createdAt only for new users
+        if (isNewUser) {
+            userData.createdAt = new Date().toISOString();
+        }
+
         await db.collection('users').doc(email).set(userData, { merge: true });
 
-        // Telegram Notification
-        const fullName = [finalFirstName, finalLastName].filter(Boolean).join(' ') || 'N/A';
-        const phoneDisplay = finalPhone || 'N/A';
-        const message = `
+        // Only send Telegram notification for NEW users
+        if (isNewUser) {
+            const phoneDisplay = finalPhone || 'N/A';
+            const message = `
 👤 <b>New User Registration!</b>
 
 <b>Email:</b> ${email}
-<b>Name:</b> ${fullName}
+<b>Name:</b> ${fullName || 'N/A'}
 <b>Phone:</b> ${phoneDisplay}
-        `;
-        sendTelegramNotification(message, env).catch(console.error);
+<b>Source:</b> TM App
+            `;
+            sendTelegramNotification(message, env).catch(console.error);
+        }
 
-        return jsonResponse({ success: true, message: 'User registered' });
+        return jsonResponse({
+            success: true,
+            message: isNewUser ? 'User registered' : 'User profile updated',
+            isNewUser: isNewUser
+        });
     } catch (error) {
         console.error('Registration error:', error);
         return jsonResponse({ error: 'Internal server error' }, 500);
