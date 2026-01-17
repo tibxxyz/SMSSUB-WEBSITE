@@ -61,7 +61,11 @@ export async function onRequest(context) {
         }
     } catch (error) {
         console.error('API Error:', error);
-        return jsonResponse({ error: 'Internal server error' }, 500);
+        return jsonResponse({
+            error: 'Internal server error',
+            message: error.message,
+            stack: error.stack
+        }, 500);
     }
 }
 
