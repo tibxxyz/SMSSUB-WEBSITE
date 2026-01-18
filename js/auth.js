@@ -18,24 +18,24 @@ async function loginUser(email) {
         if (!isValidEmail(email)) {
             throw new Error('Invalid email format');
         }
-        
+
         // Check if user exists in main app
         const userExists = await checkUserInMainApp(email);
-        
+
         if (!userExists) {
             throw new Error('Access Denied: This email is not registered in the main app.\n\nTo gain access:\n1. Go to the main Ticketmaster app\n2. Navigate to My Account page\n3. Save your email address in the account settings\n4. Return here and login with the same email');
         }
-        
+
         // Store user session
         sessionStorage.setItem('userEmail', email);
         sessionStorage.setItem('loginTime', Date.now());
-        
+
         // Check if there's a redirect parameter (e.g., for admin panel)
         const urlParams = new URLSearchParams(window.location.search);
         const redirect = urlParams.get('redirect');
-        
+
         return { success: true, message: 'Login successful', redirect: redirect };
-        
+
     } catch (error) {
         return { success: false, message: error.message };
     }
@@ -48,24 +48,24 @@ async function signupUser(email) {
         if (!isValidEmail(email)) {
             throw new Error('Invalid email format');
         }
-        
+
         // Check if user already exists
         const userExists = await checkUserInMainApp(email);
-        
+
         if (userExists) {
             throw new Error('Account already exists. Please login instead.');
         }
-        
+
         // Create new user account
         const newUser = await createUserAccount(email);
-        
+
         // Store user session
         sessionStorage.setItem('userEmail', email);
         sessionStorage.setItem('loginTime', Date.now());
         sessionStorage.setItem('isNewUser', 'true');
-        
+
         return { success: true, message: 'Account created successfully', user: newUser };
-        
+
     } catch (error) {
         return { success: false, message: error.message };
     }
@@ -80,16 +80,17 @@ function isValidEmail(email) {
 // Check if user exists in main app (real API call)
 async function checkUserInMainApp(email) {
     try {
-        const response = await fetch('/api/validate-user', {
+        const response = await fetch('/api/users?action=validate-user', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({ email: email })
         });
-        
+
         const data = await response.json();
-        return data.success;
+        // Return true if user is valid (exists in database)
+        return data.valid === true;
     } catch (error) {
         console.error('Error checking user in main app:', error);
         return false;
@@ -99,7 +100,7 @@ async function checkUserInMainApp(email) {
 // Create new user account in Firebase
 async function createUserAccount(email) {
     try {
-        const response = await fetch('/api/register-main-app-user', {
+        const response = await fetch('/api/users?action=register-main-app-user', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -111,9 +112,9 @@ async function createUserAccount(email) {
                 country: ''
             })
         });
-        
+
         const data = await response.json();
-        
+
         if (data.success) {
             return {
                 email: email,
@@ -136,7 +137,7 @@ function logout() {
     sessionStorage.removeItem('userEmail');
     sessionStorage.removeItem('loginTime');
     sessionStorage.removeItem('isNewUser');
-    
+
     // Redirect to login
     window.location.href = 'login.html';
 }
@@ -145,7 +146,7 @@ function logout() {
 function getCurrentUser() {
     const userEmail = sessionStorage.getItem('userEmail');
     if (!userEmail) return null;
-    
+
     // Get user data from localStorage (in production, this would be an API call)
     const userData = localStorage.getItem(`user_${userEmail}`);
     return userData ? JSON.parse(userData) : null;
@@ -155,36 +156,36 @@ function getCurrentUser() {
 function updateUserData(userData) {
     const userEmail = sessionStorage.getItem('userEmail');
     if (!userEmail) return false;
-    
+
     // Update user data in localStorage (in production, this would be an API call)
     localStorage.setItem(`user_${userEmail}`, JSON.stringify(userData));
     return true;
 }
 
 // Handle form submissions
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     const loginForm = document.getElementById('loginForm');
     const signupForm = document.getElementById('signupForm');
-    
+
     if (loginForm) {
-        loginForm.addEventListener('submit', async function(e) {
+        loginForm.addEventListener('submit', async function (e) {
             e.preventDefault();
-            
+
             const email = document.getElementById('email').value;
             const loginBtn = document.getElementById('loginBtn');
             const buttonText = loginBtn.querySelector('.button-text');
             const buttonLoading = loginBtn.querySelector('.button-loading');
             const emailError = document.getElementById('emailError');
-            
+
             // Show loading state
             buttonText.style.display = 'none';
             buttonLoading.style.display = 'inline';
             loginBtn.disabled = true;
             emailError.style.display = 'none';
-            
+
             try {
                 const result = await loginUser(email);
-                
+
                 if (result.success) {
                     // Check for redirect parameter
                     if (result.redirect) {
@@ -209,11 +210,11 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
-    
+
     if (signupForm) {
-        signupForm.addEventListener('submit', async function(e) {
+        signupForm.addEventListener('submit', async function (e) {
             e.preventDefault();
-            
+
             const email = document.getElementById('signupEmail').value;
             const confirmEmail = document.getElementById('confirmEmail').value;
             const signupBtn = document.getElementById('signupBtn');
@@ -221,26 +222,26 @@ document.addEventListener('DOMContentLoaded', function() {
             const buttonLoading = signupBtn.querySelector('.button-loading');
             const emailError = document.getElementById('signupEmailError');
             const confirmError = document.getElementById('confirmEmailError');
-            
+
             // Clear previous errors
             emailError.style.display = 'none';
             confirmError.style.display = 'none';
-            
+
             // Validate emails match
             if (email !== confirmEmail) {
                 confirmError.textContent = 'Emails do not match';
                 confirmError.style.display = 'block';
                 return;
             }
-            
+
             // Show loading state
             buttonText.style.display = 'none';
             buttonLoading.style.display = 'inline';
             signupBtn.disabled = true;
-            
+
             try {
                 const result = await signupUser(email);
-                
+
                 if (result.success) {
                     // Redirect to dashboard
                     window.location.href = 'dashboard.html';
@@ -263,12 +264,12 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // Global functions for HTML onclick handlers
-window.showSignup = function() {
+window.showSignup = function () {
     document.getElementById('loginForm').style.display = 'none';
     document.getElementById('signupForm').style.display = 'block';
 };
 
-window.showLogin = function() {
+window.showLogin = function () {
     document.getElementById('signupForm').style.display = 'none';
     document.getElementById('loginForm').style.display = 'block';
 };
