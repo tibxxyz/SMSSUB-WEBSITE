@@ -178,11 +178,30 @@ async function validateUser(request, db) {
             return jsonResponse({ error: 'Email is required' }, 400);
         }
 
+        console.log('[ValidateUser] Checking email:', email);
+
+        // First try: document ID is the email
         const doc = await db.collection('users').doc(email).get();
-        return jsonResponse({ success: true, valid: doc.exists });
+
+        if (doc.exists) {
+            console.log('[ValidateUser] Found user by doc ID:', email);
+            return jsonResponse({ success: true, valid: true });
+        }
+
+        // Second try: search by email field (in case doc ID is different)
+        console.log('[ValidateUser] Doc ID not found, searching by email field...');
+        const querySnapshot = await db.collection('users').where('email', '==', email).get();
+
+        if (!querySnapshot.empty) {
+            console.log('[ValidateUser] Found user by email field query');
+            return jsonResponse({ success: true, valid: true });
+        }
+
+        console.log('[ValidateUser] User not found:', email);
+        return jsonResponse({ success: true, valid: false });
     } catch (error) {
         console.error('Validation error:', error);
-        return jsonResponse({ error: 'Internal server error' }, 500);
+        return jsonResponse({ error: 'Internal server error', message: error.message }, 500);
     }
 }
 
