@@ -297,7 +297,9 @@ a:hover {
     min-height: 100vh;
     display: flex;
     align-items: center;
-    padding-top: 80px;
+    padding-top: 120px;
+    position: relative;
+    z-index: 1;
     background: radial-gradient(circle at 50% 50%, rgba(26, 82, 237, 0.15) 0%, transparent 50%);
 }
 
@@ -323,6 +325,7 @@ a:hover {
 
 .hero-visual {
     position: relative;
+    z-index: 1;
 }
 
 .phone-mockup {
