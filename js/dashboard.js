@@ -58,7 +58,7 @@ async function loadDashboard() {
 // Get user data from Firebase API
 async function getUserData(email) {
     try {
-        const response = await fetch('/api/get-user-data', {
+        const response = await fetch('/api/users?action=get-user-data', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -84,16 +84,14 @@ async function getUserData(email) {
 async function createNewUser(email) {
     try {
         // Register user via API which will create Firebase entry with SMS credits initialized
-        const response = await fetch('/api/register-main-app-user', {
+        const response = await fetch('/api/users?action=register-main-app-user', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
                 email: email,
-                name: '',
-                location: '',
-                country: ''
+                source: 'Dashboard'
             })
         });
 
@@ -198,7 +196,7 @@ function formatDate(dateString) {
 function showPricing() {
     const modal = document.getElementById('paymentModal');
     modal.style.display = 'flex';
-    
+
     // Check for selected package from sessionStorage
     const selectedPackageStr = sessionStorage.getItem('selectedPackage');
     if (selectedPackageStr) {
@@ -207,15 +205,15 @@ function showPricing() {
             const amountInput = document.getElementById('paymentAmount');
             const packageInfo = document.getElementById('selectedPackageInfo');
             const packageNameDisplay = document.getElementById('packageNameDisplay');
-            
+
             if (amountInput && packageInfo && packageNameDisplay) {
                 // Pre-fill amount
                 amountInput.value = selectedPackage.amount;
-                
+
                 // Show package info
                 packageNameDisplay.textContent = `${selectedPackage.name} Package - $${selectedPackage.amount} for ${selectedPackage.credits} SMS`;
                 packageInfo.style.display = 'block';
-                
+
                 // Clear selected package after using it
                 sessionStorage.removeItem('selectedPackage');
             }
@@ -237,13 +235,13 @@ function closePaymentModal() {
     if (modal) {
         modal.style.display = 'none';
     }
-    
+
     // Clear selected package info when modal is closed
     const packageInfo = document.getElementById('selectedPackageInfo');
     if (packageInfo) {
         packageInfo.style.display = 'none';
     }
-    
+
     // Clear selected package from sessionStorage
     sessionStorage.removeItem('selectedPackage');
 }
@@ -254,7 +252,7 @@ function copyAddress(address) {
         console.error('No address provided to copyAddress');
         return;
     }
-    
+
     navigator.clipboard.writeText(address).then(() => {
         // Find the button that was clicked (the one that called this function)
         const buttons = document.querySelectorAll('button[onclick*="copyAddress"]');
@@ -291,7 +289,7 @@ async function submitPayment(event) {
     submitBtn.disabled = true;
 
     try {
-        const response = await fetch('/api/submit-payment', {
+        const response = await fetch('/api/payments?action=submit-payment', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -309,13 +307,13 @@ async function submitPayment(event) {
             alert('Payment submitted successfully! Your credits will be added once approved.');
             closePaymentModal();
             event.target.reset();
-            
+
             // Clear selected package info
             const packageInfo = document.getElementById('selectedPackageInfo');
             if (packageInfo) {
                 packageInfo.style.display = 'none';
             }
-            
+
             // Reload payment history to show new pending payment
             await loadPaymentHistory();
         } else {
@@ -350,7 +348,7 @@ async function loadPaymentHistory() {
     if (!historyList) return;
 
     try {
-        const response = await fetch('/api/get-user-payments', {
+        const response = await fetch('/api/payments?action=get-user-payments', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -362,8 +360,8 @@ async function loadPaymentHistory() {
 
         if (data.success && data.payments && data.payments.length > 0) {
             const paymentsHTML = data.payments.map(payment => {
-                const statusColor = payment.status === 'approved' ? '#28a745' : 
-                                   payment.status === 'pending' ? '#ffc107' : '#dc3545';
+                const statusColor = payment.status === 'approved' ? '#28a745' :
+                    payment.status === 'pending' ? '#ffc107' : '#dc3545';
                 const statusText = payment.status.charAt(0).toUpperCase() + payment.status.slice(1);
                 const date = new Date(payment.createdAt).toLocaleDateString('en-US', {
                     year: 'numeric',
@@ -434,19 +432,19 @@ function startAutoRefresh() {
             const userData = await getUserData(userEmail);
             if (userData) {
                 const currentCredits = userData.smsCredits || 0;
-                
+
                 // Check if credits changed
                 if (currentCredits !== lastCreditsCount) {
                     const creditsAdded = currentCredits - lastCreditsCount;
                     displayUserData(userData);
-                    
+
                     // Show notification if credits increased
                     if (creditsAdded > 0) {
                         showNotification(`Payment approved! ${creditsAdded} SMS credit${creditsAdded > 1 ? 's' : ''} added to your account.`, 'success');
                     }
-                    
+
                     lastCreditsCount = currentCredits;
-                    
+
                     // Reload payment history to show updated status
                     await loadPaymentHistory();
                 }
@@ -471,7 +469,7 @@ async function checkPaymentConfirmations() {
     if (!userEmail) return;
 
     try {
-        const response = await fetch('/api/get-user-payments', {
+        const response = await fetch('/api/payments?action=get-user-payments', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -496,7 +494,7 @@ async function checkPaymentConfirmations() {
             if (recentApproved.length > 0) {
                 const totalCredits = recentApproved.reduce((sum, p) => sum + Math.floor(p.amount), 0);
                 showNotification(`Payment approved! ${totalCredits} SMS credit${totalCredits > 1 ? 's' : ''} added to your account.`, 'success');
-                
+
                 // Immediately refresh user data to update credits display
                 const updatedUserData = await getUserData(userEmail);
                 if (updatedUserData) {
@@ -612,7 +610,7 @@ document.addEventListener('click', function (e) {
 });
 
 // Cleanup on page unload
-window.addEventListener('beforeunload', function() {
+window.addEventListener('beforeunload', function () {
     stopAutoRefresh();
 });
 
