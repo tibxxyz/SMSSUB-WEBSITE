@@ -84,10 +84,22 @@ async function submitPayment(request, db, env) {
             createdAt: new Date().toISOString()
         };
 
+        console.log('[Payment] Saving payment to Firestore:', email, amount);
         const paymentRef = await db.collection('payments').add(paymentData);
         const paymentId = paymentRef.id;
+        console.log('[Payment] Payment saved with ID:', paymentId);
 
-        sendPaymentNotificationWithButtons(email, amount, txid, paymentId, env).catch(console.error);
+        // Send Telegram notification
+        console.log('[Payment] Sending Telegram notification...');
+        console.log('[Payment] TELEGRAM_BOT_TOKEN exists:', !!env.TELEGRAM_BOT_TOKEN);
+        console.log('[Payment] TELEGRAM_ADMIN_CHAT_ID exists:', !!env.TELEGRAM_ADMIN_CHAT_ID);
+
+        try {
+            await sendPaymentNotificationWithButtons(email, amount, txid, paymentId, env);
+            console.log('[Payment] Telegram notification sent successfully');
+        } catch (telegramError) {
+            console.error('[Payment] Telegram notification failed:', telegramError);
+        }
 
         return jsonResponse({ success: true, message: 'Payment submitted' });
     } catch (error) {
