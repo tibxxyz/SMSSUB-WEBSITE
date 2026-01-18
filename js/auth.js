@@ -241,8 +241,19 @@ document.addEventListener('DOMContentLoaded', function () {
                 const result = await signupUser(email);
 
                 if (result.success) {
-                    // Redirect to dashboard
-                    window.location.href = 'dashboard.html';
+                    // Clear session - user needs to login after signup
+                    sessionStorage.removeItem('userEmail');
+                    sessionStorage.removeItem('loginTime');
+                    sessionStorage.removeItem('isNewUser');
+
+                    // Show success modal instead of redirecting
+                    if (typeof showSuccessModal === 'function') {
+                        showSuccessModal();
+                    } else {
+                        // Fallback if modal function not available
+                        alert('Account created successfully! Please login.');
+                        showLogin();
+                    }
                 } else {
                     // Show error
                     emailError.textContent = result.message;

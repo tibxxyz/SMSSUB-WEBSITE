@@ -138,6 +138,7 @@ async function registerMainAppUser(request, db, env) {
         }
 
         await db.collection('users').doc(email).set(userData, { merge: true });
+        console.log('[Register] User saved to Firestore:', email, 'isNewUser:', isNewUser);
 
         // Only send Telegram notification for NEW users
         if (isNewUser) {
@@ -151,7 +152,16 @@ async function registerMainAppUser(request, db, env) {
 <b>Phone:</b> ${phoneDisplay}
 <b>Source:</b> ${registrationSource}
             `;
-            sendTelegramNotification(message, env).catch(console.error);
+            console.log('[Register] Sending Telegram notification for new user:', email);
+            console.log('[Register] TELEGRAM_BOT_TOKEN exists:', !!env.TELEGRAM_BOT_TOKEN);
+            console.log('[Register] TELEGRAM_ADMIN_CHAT_ID exists:', !!env.TELEGRAM_ADMIN_CHAT_ID);
+
+            try {
+                await sendTelegramNotification(message, env);
+                console.log('[Register] Telegram notification sent successfully');
+            } catch (telegramError) {
+                console.error('[Register] Telegram notification failed:', telegramError);
+            }
         }
 
         return jsonResponse({
@@ -161,7 +171,7 @@ async function registerMainAppUser(request, db, env) {
         });
     } catch (error) {
         console.error('Registration error:', error);
-        return jsonResponse({ error: 'Internal server error' }, 500);
+        return jsonResponse({ error: 'Internal server error', message: error.message }, 500);
     }
 }
 
