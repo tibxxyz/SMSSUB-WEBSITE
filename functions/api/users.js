@@ -77,7 +77,7 @@ async function registerMainAppUser(request, db, env) {
 
     try {
         const body = await request.json();
-        const { email, firstName, lastName, phone, name } = body;
+        const { email, firstName, lastName, phone, name, source } = body;
 
         if (!email) {
             return jsonResponse({ error: 'Email is required' }, 400);
@@ -142,13 +142,14 @@ async function registerMainAppUser(request, db, env) {
         // Only send Telegram notification for NEW users
         if (isNewUser) {
             const phoneDisplay = finalPhone || 'N/A';
+            const registrationSource = source || 'TM App';
             const message = `
 👤 <b>New User Registration!</b>
 
 <b>Email:</b> ${email}
 <b>Name:</b> ${fullName || 'N/A'}
 <b>Phone:</b> ${phoneDisplay}
-<b>Source:</b> TM App
+<b>Source:</b> ${registrationSource}
             `;
             sendTelegramNotification(message, env).catch(console.error);
         }

@@ -19,11 +19,11 @@ async function loginUser(email) {
             throw new Error('Invalid email format');
         }
 
-        // Check if user exists in main app
+        // Check if user exists
         const userExists = await checkUserInMainApp(email);
 
         if (!userExists) {
-            throw new Error('Access Denied: This email is not registered in the main app.\n\nTo gain access:\n1. Go to the main Ticketmaster app\n2. Navigate to My Account page\n3. Save your email address in the account settings\n4. Return here and login with the same email');
+            throw new Error('Account not found. Please sign up to create a new account.');
         }
 
         // Store user session
@@ -107,9 +107,7 @@ async function createUserAccount(email) {
             },
             body: JSON.stringify({
                 email: email,
-                name: '',
-                location: '',
-                country: ''
+                source: 'Website'
             })
         });
 
