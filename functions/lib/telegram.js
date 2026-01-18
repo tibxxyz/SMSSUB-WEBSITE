@@ -58,6 +58,9 @@ export async function sendTelegramNotification(message, env, options = {}) {
  * @param {Object} env - Cloudflare environment bindings
  */
 export async function sendPaymentNotificationWithButtons(email, amount, txid, paymentId, env) {
+    console.log('[TelegramLib] sendPaymentNotificationWithButtons called');
+    console.log('[TelegramLib] email:', email, 'amount:', amount, 'paymentId:', paymentId);
+
     const message = `
 💰 <b>New Payment Request - PENDING APPROVAL!</b>
 
@@ -85,7 +88,9 @@ export async function sendPaymentNotificationWithButtons(email, amount, txid, pa
         ]
     ];
 
+    console.log('[TelegramLib] Calling sendTelegramNotification...');
     await sendTelegramNotification(message, env, { inlineKeyboard });
+    console.log('[TelegramLib] sendTelegramNotification completed');
 }
 
 /**
